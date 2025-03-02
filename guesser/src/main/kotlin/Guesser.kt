@@ -18,6 +18,8 @@ class Guesser {
         var menuOption = 0
         var status = 0
         while (this.keepRunning) {
+            println("got here!")
+            this.keepRunning = false
             /* ... */
         }
     }
