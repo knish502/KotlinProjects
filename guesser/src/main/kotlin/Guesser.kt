@@ -37,7 +37,6 @@ class Guesser {
             }
 
             this.guesses.add(guess)
-            println(this.guesses)
         }
 
         println("The answer was: ${this.ans}")
