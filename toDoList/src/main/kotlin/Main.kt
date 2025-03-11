@@ -91,7 +91,11 @@ class DataStruct (private val fileName: String) {
         println("$taskName has been added at index $itemIndex.")
     }
 
-    fun removeItem() {}
+    fun removeItem() {
+        print("\nEnter the index of the item that you wish to remove:\n> ")
+        val idx = readlnOrNull()?.toInt() ?: -100
+        throw NullPointerException("Check this!")
+    }
 
     fun saveData() {}
 
