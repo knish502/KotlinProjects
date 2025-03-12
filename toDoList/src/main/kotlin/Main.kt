@@ -14,7 +14,7 @@ fun main() {
             else -> println("That's not an option, please try again")
         }
     }
-
+    dataStore.saveData()
     do {println("Press 'q' to confirm:")} while (readlnOrNull() != "q")
 }
 
@@ -63,23 +63,28 @@ class DataStruct (private val fileName: String) {
         println("\nDisplaying your to-do list:\n")
         for (i in 0..<this.keyList.size){
             print("$i.")
-            if (this.completionMap[this.keyList[i]] == true){
-                print(" [complete]")
+            if (this.completionMap[this.keyList[i]] == true) {
+                print(" [x]")
+            } else {
+                print(" [ ]")
             }
             print(" ${this.keyList[i]}\n")
         }
     }
 
     fun checkOffItem() {
-        print("\nEnter the index of the item you wish to check off or uncheck:\n> ")
+        print("\nEnter the index of the item you wish to check or uncheck:\n> ")
         val idx = readlnOrNull()?.toInt() ?: -100
         this.completionMap[this.keyList[idx]] = !this.completionMap[this.keyList[idx]]!!
-        println("You have checked '${this.keyList[idx]}'")
-        this.saveData()
+        if (this.completionMap[this.keyList[idx]]!!){
+            println("You have checked '${this.keyList[idx]}'")
+        } else {
+            println("You have unchecked '${this.keyList[idx]}'")
+        }
     }
 
     fun addItem() {
-        print("\nEnter your task:\n> ")
+        print("\nEnter the task you wish to add:\n> ")
         val taskName = readlnOrNull() ?: ""
         this.completionMap[taskName] = false
         this.refreshKeyList()
@@ -88,28 +93,29 @@ class DataStruct (private val fileName: String) {
             itemIndex = i
             if (this.keyList[i] == taskName) { break }
         }
-        println("$taskName has been added at index $itemIndex.")
-        this.saveData()
+        println("\"$taskName\" has been added at index $itemIndex.")
     }
 
     fun removeItem() {
         print("\nEnter the index of the item that you wish to remove:\n> ")
         val idx = readlnOrNull()?.toInt() ?: -101
+        println("Removing \"${this.keyList[idx]}\".")
         this.completionMap.remove(this.keyList[idx])
         this.refreshKeyList()
-        this.saveData()
     }
 
-    private fun saveData() {
+    fun saveData() {
+        println("Saving data!")
         var lineString = ""
         val writeFile = File(fileName)
+        writeFile.writeText("")
         for (key in this.completionMap.keys) {
             lineString = if (this.completionMap[key]!!) {
                 "*$key\n"
             } else {
                 "$key\n"
             }
-            writeFile.writeText(lineString)
+            writeFile.appendText(lineString)
         }
     }
 
