@@ -15,7 +15,6 @@ fun main() {
         }
     }
 
-    dataStore.saveData()
     do {println("Press 'q' to confirm:")} while (readlnOrNull() != "q")
 }
 
@@ -27,7 +26,7 @@ fun menu() : Int {
             " 3: Remove item from to-do list\n" +
             " 4: Quit the program\n> "
     print(menuText)
-    return readLine()?.toInt() ?: -1
+    return readlnOrNull()?.toInt() ?: -1
 }
 
 
@@ -39,10 +38,10 @@ class DataStruct (private val fileName: String) {
 
     init {
         this.loadData()
-        this.keyList = this.completionMap.keys.toMutableList()
+        this.refreshKeyList()
     }
 
-    fun loadData() {
+    private fun loadData() {
         val dataFileLines : List<String> = File(fileName).readLines()
         this.completionMap = mutableMapOf<String, Boolean>()
         var key = ""
@@ -76,27 +75,44 @@ class DataStruct (private val fileName: String) {
         val idx = readlnOrNull()?.toInt() ?: -100
         this.completionMap[this.keyList[idx]] = !this.completionMap[this.keyList[idx]]!!
         println("You have checked '${this.keyList[idx]}'")
+        this.saveData()
     }
 
     fun addItem() {
         print("\nEnter your task:\n> ")
         val taskName = readlnOrNull() ?: ""
         this.completionMap[taskName] = false
-        this.keyList = this.completionMap.keys.toMutableList()
+        this.refreshKeyList()
         var itemIndex = 0
         for (i in 0..<this.keyList.size){
             itemIndex = i
             if (this.keyList[i] == taskName) { break }
         }
         println("$taskName has been added at index $itemIndex.")
+        this.saveData()
     }
 
     fun removeItem() {
         print("\nEnter the index of the item that you wish to remove:\n> ")
-        val idx = readlnOrNull()?.toInt() ?: -100
-        throw NullPointerException("Check this!")
+        val idx = readlnOrNull()?.toInt() ?: -101
+        this.completionMap.remove(this.keyList[idx])
+        this.refreshKeyList()
+        this.saveData()
     }
 
-    fun saveData() {}
+    private fun saveData() {
+        var lineString = ""
+        val writeFile = File(fileName)
+        for (key in this.completionMap.keys) {
+            lineString = if (this.completionMap[key]!!) {
+                "*$key\n"
+            } else {
+                "$key\n"
+            }
+            writeFile.writeText(lineString)
+        }
+    }
+
+    private fun refreshKeyList() {this.keyList = this.completionMap.keys.toMutableList()}
 
 }
