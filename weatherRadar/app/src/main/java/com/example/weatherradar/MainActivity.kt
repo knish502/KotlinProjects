@@ -20,8 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             WeatherRadarTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    Foo(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -31,17 +30,28 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun Foo(modifier: Modifier = Modifier){
     Text(
-        text = "Hello $name!",
+        text = "What's up, dog?",
         modifier = modifier
     )
 }
+//fun Greeting(name: String, modifier: Modifier = Modifier) {
+//    Text(
+//        text = "Hello $name!",
+//        modifier = modifier
+//    )
+//}
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun FooPreview(){
     WeatherRadarTheme {
-        Greeting("Android")
+        Foo()
     }
 }
+//fun GreetingPreview() {
+//    WeatherRadarTheme {
+//        Greeting("Android")
+//    }
+//}
