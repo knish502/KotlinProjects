@@ -26,8 +26,13 @@ class Guesser {
             println("Guess a number between ${this.min} and ${this.max}!")
             while (this.guesses.size < this.guessCount) {
                 points = this.guessCount - this.guesses.size
-                println("You have $points guesses left.")
-                print("Write something:\n> ")
+                print("You have $points guess")
+                if (points != 1) {
+                    println("es left.")
+                } else {
+                    println(" left.")
+                }
+                print("Your guess:\n> ")
                 var guess = readLine()?.toInt() ?: 0
 
                 if (guess > this.ans) {
@@ -50,7 +55,12 @@ class Guesser {
 
             println("The answer was: ${this.ans}")
             if (didPlayerWin) {
-                println("You won $points points!")
+                print("You won $points point")
+                if (points != 1) {
+                    println("s!")
+                } else {
+                    println("!")
+                }
                 this.score += points
             } else {
                 println("You lost a point...")
