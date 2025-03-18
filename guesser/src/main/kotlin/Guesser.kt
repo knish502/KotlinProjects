@@ -10,6 +10,7 @@ class Guesser {
     var max = 1000
     var guessCount = floor(log2(this.max.toDouble())).toInt() + 1
     var score = 0
+    var hiScore = 0
 
     init {
         // pass
@@ -21,8 +22,9 @@ class Guesser {
         while(true) {
             didPlayerWin = false
             this.guesses = mutableListOf()
+            if (this.score > this.hiScore) {this.hiScore = this.score}
             this.ans = (this.min..this.max).random()
-            println("\nCurrent Score: ${this.score}")
+            println("\nCurrent Score: ${this.score} (best: ${this.hiScore})")
             println("Guess a number between ${this.min} and ${this.max}!")
             while (this.guesses.size < this.guessCount) {
                 points = this.guessCount - this.guesses.size
@@ -63,8 +65,9 @@ class Guesser {
                 }
                 this.score += points
             } else {
-                println("You lost a point...")
-                this.score -= 1
+                println("Game Over...")
+                println("Your score was $score. Resetting...")
+                this.score = 0
             }
 
             print("Would you like to continue? (Y/N)\n> ")
@@ -76,7 +79,7 @@ class Guesser {
 
         }
 
-        println("Thank you for playing! Your final score was ${this.score}.")
+        println("Thank you for playing! Your final best was ${this.hiScore}.")
     }
 
 
