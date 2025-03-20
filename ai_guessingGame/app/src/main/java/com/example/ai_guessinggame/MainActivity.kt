@@ -1,5 +1,6 @@
 package com.example.ai_guessinggame
 
+// Android imports for activity and UI elements
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,10 +23,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
+// MainActivity serves as the entry point of the Android app.
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            // Sets the content of the activity to the NumberGuessingGame Composable function
             NumberGuessingGame()
         }
     }
@@ -33,17 +36,31 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun NumberGuessingGame() {
+    // Generates a random target number between 1 and 1000
     var targetNumber by remember { mutableStateOf(Random.nextInt(1, 1001)) }
+
+    // Stores the user's input as text
     var userInput by remember { mutableStateOf(TextFieldValue("")) }
+
+    // Stores the message displayed to the user (e.g., feedback after a guess)
     var message by remember { mutableStateOf("Guess a number between 1 and 1000!") }
+
+    // Stores the last guessed number
     var lastGuess by remember { mutableStateOf<Int?>(null) }
+
+    // Keeps track of the number of attempts
     var attempts by remember { mutableStateOf(0) }
+
+    // Controls whether the confetti animation is shown
     var showConfetti by remember { mutableStateOf(false) }
+
+    // Tracks whether the user's input is valid
     var isValidInput by remember { mutableStateOf(true) }
 
+    // Creates a coroutine scope to manage animations and delays
     val coroutineScope = rememberCoroutineScope()
 
-    // Auto-hide confetti after 3 seconds
+    // Automatically hides the confetti animation after 3 seconds
     LaunchedEffect(showConfetti) {
         if (showConfetti) {
             delay(3000)
@@ -51,6 +68,7 @@ fun NumberGuessingGame() {
         }
     }
 
+    // UI layout
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -58,13 +76,17 @@ fun NumberGuessingGame() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Title text
         Text(text = "Number Guessing Game", style = MaterialTheme.typography.headlineMedium)
+
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Input field for the user's guess
         OutlinedTextField(
             value = userInput,
             onValueChange = {
                 userInput = it
+                // Validate input: should be a number between 1 and 1000
                 isValidInput = it.text.isEmpty() ||
                         (it.text.toIntOrNull() != null && it.text.toIntOrNull()!! in 1..1000)
             },
@@ -83,6 +105,7 @@ fun NumberGuessingGame() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Submit button to check the user's guess
         Button(
             onClick = {
                 val guess = userInput.text.toIntOrNull()
@@ -105,7 +128,7 @@ fun NumberGuessingGame() {
                         else -> "Too high! Try again."
                     }
                 }
-                userInput = TextFieldValue("") // Clear input field after submission
+                userInput = TextFieldValue("") // Clears the input field after submission
             },
             enabled = isValidInput && userInput.text.isNotEmpty()
         ) {
@@ -114,6 +137,7 @@ fun NumberGuessingGame() {
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Reset button to restart the game
         Button(onClick = {
             targetNumber = Random.nextInt(1, 1001)
             userInput = TextFieldValue("")
@@ -127,12 +151,16 @@ fun NumberGuessingGame() {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Displays the number of attempts made
         Text(text = "Attempts: $attempts", style = MaterialTheme.typography.bodyMedium)
 
+        // Displays the last guess if one has been made
         lastGuess?.let {
             Text(text = "Last Guess: $it", style = MaterialTheme.typography.bodyMedium)
         }
 
+        // Animated confetti effect when the player wins
         AnimatedVisibility(
             visible = showConfetti,
             enter = fadeIn() + expandVertically(),
@@ -151,6 +179,8 @@ fun NumberGuessingGame() {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Displays feedback messages (e.g., "Too high!", "Too low!", "Correct!")
         Text(
             text = message,
             style = MaterialTheme.typography.bodyLarge,
@@ -159,9 +189,10 @@ fun NumberGuessingGame() {
     }
 }
 
+// Confetti animation for when the player wins
 @Composable
 fun ConfettiAnimation() {
-    // Create mutable state for each particle
+    // Represents an animated confetti particle
     class AnimatedParticle {
         var x by mutableStateOf(0f)
         var y by mutableStateOf(0f)
@@ -172,12 +203,12 @@ fun ConfettiAnimation() {
         var speed = Random.nextFloat() * 5f + 3f
     }
 
-    // Create particles with random positions
+    // Generates a list of 50 particles with random starting positions
     val particles = remember {
         List(50) {
             AnimatedParticle().also { particle ->
                 particle.x = Random.nextFloat() * 300f
-                particle.y = Random.nextFloat() * -200f  // Start above the visible area
+                particle.y = Random.nextFloat() * -200f  // Start above the screen
             }
         }
     }
@@ -188,13 +219,13 @@ fun ConfettiAnimation() {
     // Animate each particle
     LaunchedEffect(Unit) {
         while (true) {
-            delay(16) // Roughly 60fps
+            delay(16) // Approximate 60fps
             particles.forEach { particle ->
-                // Move particles downward with some horizontal movement
+                // Move particles downward with a slight horizontal shift
                 particle.y += particle.speed
                 particle.x += (Random.nextFloat() - 0.5f) * 3f
 
-                // Reset particles that fall out of view
+                // Reset particles that move out of view
                 if (particle.y > 600f) {
                     particle.y = Random.nextFloat() * -100f
                     particle.x = Random.nextFloat() * 300f
@@ -203,6 +234,7 @@ fun ConfettiAnimation() {
         }
     }
 
+    // Draws the confetti particles on the screen
     Canvas(modifier = Modifier.fillMaxSize()) {
         particles.forEach { particle ->
             drawCircle(
@@ -214,6 +246,7 @@ fun ConfettiAnimation() {
     }
 }
 
+// Preview function to show the UI in Android Studio
 @Preview(showBackground = true)
 @Composable
 fun PreviewGame() {
