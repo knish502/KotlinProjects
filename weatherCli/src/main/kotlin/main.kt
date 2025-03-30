@@ -28,7 +28,6 @@ fun main(args: Array<String>){
 
         println("Response:\n$response")
 
-        
     }
 
     connection.disconnect()
