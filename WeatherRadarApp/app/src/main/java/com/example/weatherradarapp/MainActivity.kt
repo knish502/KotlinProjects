@@ -12,6 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.weatherradarapp.ui.theme.WeatherRadarAppTheme
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,4 +46,8 @@ fun GreetingPreview() {
     WeatherRadarAppTheme {
         Greeting("Android")
     }
+}
+
+class MainViewModel : ViewModel() {
+
 }
