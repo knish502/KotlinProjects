@@ -1,77 +1,87 @@
 package com.example.weatherradarapp
 
-import android.graphics.ImageDecoder
-import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import com.example.weatherradarapp.ui.theme.WeatherRadarAppTheme
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil3.ImageLoader
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.allowHardware
-import coil3.request.crossfade
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.decode.ImageDecoderDecoder
 
+/**
+ * MainActivity is the entry point for our Android app.
+ * It sets up a simple UI that displays a weather radar GIF.
+ */
 class MainActivity : ComponentActivity() {
+
+    /**
+     * Called when the activity is created.
+     * We use setContent to define the UI using Jetpack Compose.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        // Set the content of this activity to our composable function, RadarScreen.
         setContent {
-            WeatherRadarAppTheme {
-                RadarScreen()
-            }
+            RadarScreen()
         }
     }
 }
 
-class RadarViewModel : ViewModel() {
-    private val _stationCode = MutableStateFlow("KHTX")
-    val stationCode: StateFlow<String> = _stationCode
-
-    fun updateStationCode(code: String) {
-        viewModelScope.launch {
-            _stationCode.value = code
-        }
-    }
-}
-
+/**
+ * RadarScreen is a composable function that displays a looping radar GIF.
+ */
 @Composable
-fun RadarScreen(
-    radarViewModel: RadarViewModel = viewModel()
-) {
-    val stationCodeState = radarViewModel.stationCode.collectAsState()
-    val stationCode = stationCodeState.value
+fun RadarScreen() {
+    // Construct a java.net.URL, then convert it to a String for Coil.
+    // NOAA’s weather radar GIF URL for KHTX.
+    val javaUrl: java.net.URL = java.net.URL("https://radar.weather.gov/ridge/standard/KHTX_loop.gif")
+    val imageUrl = javaUrl.toString()
 
-    val radarUrl = "https://radar.weather.gov/ridge/standard/${stationCode}_loop.gif"
+    // LocalContext gives us the current Context in a composable environment.
+    val context = LocalContext.current
 
-    val imageLoader = ImageLoader.Builder(LocalContext.current)
+    // Create a custom ImageLoader to enable decoding animated GIFs via ImageDecoderDecoder.
+    val imageLoader = ImageLoader.Builder(context)
         .components {
-            add(AnimatedImageDecoder.Factory())
+            // ImageDecoderDecoder.Factory is for API 28+, giving better
+            // animated GIF (and possibly WebP) support.
+            add(ImageDecoderDecoder.Factory())
         }
         .build()
 
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(radarUrl)
-            .allowHardware(false)
-            .build(),
-        imageLoader = imageLoader,
-        contentDescription = "Radar animation",
-        modifier = Modifier.fillMaxSize(),
-        contentScale = ContentScale.Fit
-    )
+    // Log the type of imageUrl to confirm we’re passing a String (not java.net.URL).
+    Log.d("ModelCheck", "imageUrl type: ${imageUrl::class.java.name}")
 
+    // Box arranges its children on top of each other.
+    // We use fillMaxSize() to occupy the entire screen,
+    // and contentAlignment to center the child (our AsyncImage).
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        // AsyncImage is Coil's composable for loading and displaying images (including GIFs).
+        AsyncImage(
+            model = imageUrl,                  // The URL string to load
+            contentDescription = "Radar Image", // Accessibility description
+            imageLoader = imageLoader,          // Use our custom ImageLoader for GIF support
+
+            // These optional callbacks help with debugging or handling different states.
+            onError = {
+                Log.e("error", "Coil Error -> ${it.result.throwable}")
+            },
+            onSuccess = {
+                Log.i("info", "Coil Success -> Image loaded.")
+            },
+            onLoading = {
+                Log.i("info", "Coil loading...")
+            }
+        )
+    }
 }
